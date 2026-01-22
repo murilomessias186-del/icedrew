@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cherry Ice Cream — Full SPA</title>
+
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
+
+    *{ margin:0; padding:0; box-sizing:border-box; }
+    html,body{ height:100%; font-family:Inter, sans-serif; }
+
+    /* ✅ TELA CHEIA */
+    body{
+      height: 100vh;
+      width: 100vw;
+      margin: 0;
+      padding: 0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+
+      background:
+        radial-gradient(circle at top, #f7eef2 0%, transparent 60%),
+        radial-gradient(circle at bottom, #e9fff2 0%, transparent 55%),
+        #f6f6f6;
+    }
+
+    .page{ width:100%; height:100vh; }
+
+    /* ✅ CARD FULL SCREEN */
+    .card{
+      width: 100%;
+      height: 100vh;
+      background:#b48690;
+      box-shadow:none;
+      padding:20px 26px 16px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    /* HEADER */
+    .nav{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+
+      color:rgba(255,255,255,0.85);
+      font-size:12px;
+      letter-spacing:1px;
+      text-transform:uppercase;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .mini-icon{
+      width:18px;
+      height:18px;
+      border-radius:4px;
+      background:rgba(255,255,255,0.85);
+      opacity:.75;
+    }
+
+    .nav-scroll{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding: 6px 10px;
+      border-radius: 999px;
+
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.22);
+      backdrop-filter: blur(10px);
+    }
+
+    .nav-arrow{
+      width:34px;
+      height:34px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.25);
+      background:rgba(255,255,255,0.08);
+      color:white;
+      cursor:pointer;
+
+      font-size:18px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+
+      transition: transform .15s ease, opacity .2s ease;
+    }
+    .nav-arrow:hover{ transform: translateY(-1px); }
+
+    .links{
+      display:flex;
+      gap:22px;
+      align-items:center;
+      white-space: nowrap;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      padding: 6px 2px;
+      max-width: 62vw;
+      scrollbar-width: none;
+    }
+    .links::-webkit-scrollbar{ display:none; }
+
+    .tab{
+      position:relative;
+      color:rgba(255,255,255,0.88);
+      text-decoration:none;
+      font-weight:500;
+      padding-bottom: 6px;
+      transition:opacity .2s ease, transform .2s ease;
+      cursor:pointer;
+    }
+
+    .tab::after{
+      content:"";
+      position:absolute;
+      left:0;
+      bottom:0;
+      width:0%;
+      height:2px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.9);
+      transition:width .25s ease;
+      opacity:0.9;
+    }
+
+    .tab:hover{
+      opacity:1;
+      transform: translateY(-1px);
+    }
+    .tab:hover::after{ width:100%; }
+
+    .tab.active{ opacity:1; font-weight:700; }
+    .tab.active::after{ width:100%; }
+
+    .icons{ display:flex; gap:8px; align-items:center; }
+    .icon{
+      width:34px;
+      height:34px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.25);
+      background:transparent;
+      color:white;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .badge-cart{
+      font-size: 11px;
+      background: rgba(255,255,255,0.16);
+      border: 1px solid rgba(255,255,255,0.25);
+      padding: 6px 10px;
+      border-radius: 999px;
+    }
+
+    /* STAGE (páginas deslizando) */
+    .stage{
+      margin-top: 16px;
+      height: calc(100vh - 72px);
+      position: relative;
+      overflow: hidden;
+      border-radius: 18px;
+    }
+
+    .track{
+      height: 100%;
+      display: flex;
+      width: 100%;
+      transition: transform .45s cubic-bezier(.2,.9,.2,1);
+      will-change: transform;
+    }
+
+    .view{
+      min-width: 100%;
+      height: 100%;
+      padding: 18px;
+      color: rgba(255,255,255,0.92);
+      overflow: auto;
+    }
+
+    /* HOME HERO */
+    .hero{
+      height: 100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position:relative;
+    }
+
+    .big-text{
+      position:absolute;
+      left:20px;
+      bottom:60px;
+      font-size:clamp(90px, 12vw, 180px);
+      font-weight:800;
+      letter-spacing:2px;
+      line-height:1;
+      color:rgba(255,255,255,0.75);
+      user-select:none;
+      pointer-events:none;
+    }
+
+    .product-wrap{
+      position:relative;
+      z-index:2;
+      transition:transform .2s ease;
+      transform-style:preserve-3d;
+    }
+
+    .product{
+      width:340px;
+      height:340px;
+      object-fit:cover;
+      border-radius:18px;
+      box-shadow:0 25px 55px rgba(0,0,0,0.28);
+    }
+
+    /* UI */
+    .page-title{
+      font-size: 54px;
+      font-weight: 800;
+      letter-spacing: 3px;
+    }
+    .page-subtitle{
+      margin-top: 10px;
+      opacity: 0.85;
+      max-width: 65ch;
+      line-height: 1.5;
+    }
+
+    .divider{
+      height: 1px;
+      margin: 18px 0;
+      background: rgba(255,255,255,0.18);
+    }
+
+    .cards-grid{
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .mini-card{
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.22);
+      background: rgba(255,255,255,0.10);
+      backdrop-filter: blur(12px);
+      transition: transform .18s ease;
+    }
+    .mini-card:hover{ transform: translateY(-3px); }
+    .mini-card h3{ font-size: 18px; }
+    .mini-card p{ margin-top: 10px; opacity: 0.85; line-height: 1.4; }
+
+    .row{
+      display:flex;
+      gap:14px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .btn{
+      padding: 12px 14px;
+      border: 1px solid rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.14);
+      color: white;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: transform .15s ease, opacity .2s ease;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      text-decoration:none;
+      min-width: 180px;
+    }
+    .btn:hover{ transform: translateY(-1px); opacity: 0.95; }
+    .btn.secondary{ background: rgba(0,0,0,0.10); }
+
+    .text-box{
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.22);
+      background: rgba(255,255,255,0.10);
+      backdrop-filter: blur(12px);
+      max-width: 900px;
+      line-height: 1.7;
+    }
+
+    /* Checkout PIX DEMO */
+    .checkout{
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 14px;
+    }
+    .panel{
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.22);
+      background: rgba(255,255,255,0.10);
+      backdrop-filter: blur(12px);
+    }
+    .label{
+      font-size: 12px;
+      opacity: 0.8;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .pix-code{
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.25);
+      background: rgba(0,0,0,0.14);
+      word-break: break-all;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .qr{
+      width: 100%;
+      height: 220px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.12);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight: 700;
+      letter-spacing: 2px;
+    }
+    .notice{
+      margin-top: 10px;
+      opacity: 0.85;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    /* ✅ TOAST POP (sofisticado e minimalista) */
+    .toast{
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      z-index: 9999;
+
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      padding: 12px 14px;
+      border-radius: 999px;
+
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.28);
+      backdrop-filter: blur(12px);
+
+      color: rgba(255,255,255,0.92);
+      font-size: 13px;
+      font-weight: 500;
+
+      box-shadow: 0 16px 40px rgba(0,0,0,0.18);
+
+      opacity: 0;
+      transform: translateY(10px) scale(0.98);
+      pointer-events: none;
+
+      transition: opacity .25s ease, transform .25s ease;
+    }
+
+    .toast.show{
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .toast-dot{
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.9);
+      opacity: 0.95;
+    }
+
+    .toast-text{
+      letter-spacing: 0.2px;
+    }
+
+    @media(max-width: 950px){
+      .cards-grid{ grid-template-columns: 1fr; }
+      .checkout{ grid-template-columns: 1fr; }
+      .links{ max-width: 54vw; }
+      .product{ width: 280px; height: 280px; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <section class="card">
+
+      <header class="nav">
+        <div class="brand"><div class="mini-icon"></div></div>
+
+        <div class="nav-scroll">
+          <button class="nav-arrow" id="leftArrow" title="Voltar">‹</button>
+
+          <!-- ✅ MENU SEM FLAVOURS + CHECKOUT/SUCCESS ESCONDIDOS -->
+          <nav class="links" id="tabs">
+            <span class="tab active" data-page="0">HOME</span>
+            <span class="tab" data-page="1">SHOP</span>
+            <span class="tab" data-page="2">PRODUCT</span>
+            <span class="tab" data-page="3">CARRINHO</span>
+            <span class="tab" data-page="6">SOBRE</span>
+            <span class="tab" data-page="7">CONTACT</span>
+          </nav>
+
+          <button class="nav-arrow" id="rightArrow" title="Avançar">›</button>
+        </div>
+
+        <div class="icons">
+          <div class="badge-cart" id="cartCount">Carrinho: 0</div>
+          <button class="icon" id="goCart" title="Carrinho">🛒</button>
+        </div>
+      </header>
+
+      <div class="stage">
+        <div class="track" id="track">
+
+          <!-- 0 HOME -->
+          <section class="view">
+            <div class="hero">
+              <h1 class="big-text">cherry</h1>
+
+              <div class="product-wrap" id="tilt">
+                <img
+                  class="product"
+                  src="https://images.unsplash.com/photo-1560008581-09826d1de69e?q=80&w=900&auto=format&fit=crop"
+                  alt="Sorvete"
+                />
+              </div>
+            </div>
+          </section>
+
+          <!-- 1 SHOP -->
+          <section class="view">
+            <h1 class="page-title">SHOP</h1>
+            <p class="page-subtitle">Escolha seus sabores premium e adicione no carrinho.</p>
+
+            <div class="cards-grid">
+              <div class="mini-card">
+                <h3>Cereja Clássica</h3>
+                <p>Sabor cereja premium + creme</p>
+                <p><b>R$ 19,90</b></p>
+                <button class="btn" onclick="addToCart('Cereja Clássica', 19.90)">Adicionar</button>
+              </div>
+
+              <div class="mini-card">
+                <h3>Creme de morango</h3>
+                <p>Morango com textura suave</p>
+                <p><b>R$ 21,90</b></p>
+                <button class="btn" onclick="addToCart('Creme de morango', 21.90)">Adicionar</button>
+              </div>
+
+              <div class="mini-card">
+                <h3>Menta Refrescante</h3>
+                <p>Refrescante e elegante</p>
+                <p><b>R$ 18,90</b></p>
+                <button class="btn" onclick="addToCart('Menta Refrescante', 18.90)">Adicionar</button>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="row">
+              <button class="btn secondary" onclick="goToPage(3)">Ir para o carrinho</button>
+              <button class="btn" onclick="clearCart(); renderCart();">Limpar carrinho</button>
+            </div>
+          </section>
+
+          <!-- 2 PRODUCT -->
+          <section class="view">
+            <h1 class="page-title">PRODUCT</h1>
+            <p class="page-subtitle">Um produto premium com estética.</p>
+
+            <div class="text-box">
+              <p><b>Cherry Classic</b>: Melhor Curso de Maua Para Iniciante e Para Quem ja é Avançado na Area.</p>
+              <p>✅ NESSE CURSO VOCÊ VAI APRENDER DESDE O BASICO AO MAIS AVANÇADO NIVEL.</p>
+            </div>
+
+            <div class="row">
+              <button class="btn" onclick="addToCart('Cherry Classic', 39.90)">Adicionar no carrinho</button>
+              <button class="btn secondary" onclick="goToPage(1)">Voltar ao shop</button>
+            </div>
+          </section>
+
+          <!-- 3 CART -->
+          <section class="view">
+            <h1 class="page-title">CARRINHO</h1>
+            <p class="page-subtitle">Bom Proveito Espero que gostem .</p>
+
+            <div class="text-box" id="cartList">Carregando carrinho...</div>
+
+            <div class="row">
+              <button class="btn" onclick="startCheckout()">Ir para checkout PIX</button>
+              <button class="btn secondary" onclick="clearCart(); renderCart();">Limpar carrinho</button>
+            </div>
+          </section>
+
+          <!-- 4 CHECKOUT (ESCONDIDO NO MENU) -->
+          <section class="view">
+            <h1 class="page-title">PIX</h1>
+            <p class="page-subtitle">Checkout PIX . Só aparece na hora do pagamento.</p>
+
+            <div class="checkout">
+              <div class="panel">
+                <div class="label">PIX Copia e Cola )</div>
+                <div class="pix-code" id="pixCode">Gerando...</div>
+
+                <div class="row">
+                  <button class="btn" onclick="copyPix()">Copiar PIX</button>
+                  <button class="btn secondary" onclick="finishPaymentDemo()">Já paguei</button>
+                </div>
+
+                <p class="notice">
+                  ⚠️ Pix Expira em 2 minutos
+                </p>
+              </div>
+
+              <div class="panel">
+                <div class="label">QR Code </div>
+                <div class="qr">PIX QR</div>
+                <p class="notice"></p>
+              </div>
+            </div>
+          </section>
+
+          <!-- 5 SUCCESS (ESCONDIDO NO MENU) -->
+          <section class="view">
+            <h1 class="page-title">SUCESSO ✅</h1>
+            <p class="page-subtitle">Pagamento confirmado (simulação).</p>
+
+            <div class="text-box">
+              <p>✅ Pedido criado com sucesso.</p>
+              <p>🍒 Obrigado por comprar no Cherry Ice Cream!</p>
+            </div>
+
+            <div class="row">
+              <button class="btn" onclick="goToPage(1)">Comprar mais</button>
+              <button class="btn secondary" onclick="clearCart(); renderCart(); goToPage(1);">Finalizar</button>
+            </div>
+          </section>
+
+          <!-- 6 ABOUT -->
+          <section class="view">
+            <h1 class="page-title">SOBRE</h1>
+            <p class="page-subtitle">Uma marca premium com foco em ter o melhor sabor do abc e experiência.</p>
+
+            <div class="text-box">
+              <p>COM MUITA ALEGRIA E MUITO AMOR NO CORAÇAO SEGUIDOS ESPALHANDO NOSSO SABOR POR TODO ABC.</p>
+              <p>✅ somo uma sorveteria de alto padrao e trabalhamos apenas com produtos premium.</p>
+            </div>
+          </section>
+
+          <!-- 7 CONTACT -->
+          <section class="view">
+            <h1 class="page-title">CONTACT</h1>
+            <p class="page-subtitle">Fale com a gente.</p>
+
+            <div class="text-box">
+              <p>Email: murilodigital186@gmail.com</p>
+              <p>Instagram: @murilo___mf</p>
+              <p class="notice">site desenvolvido para portfólio.</p>
+            </div>
+          </section>
+
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ✅ TOAST POP MINIMALISTA -->
+    <div class="toast" id="toast">
+      <div class="toast-dot"></div>
+      <div class="toast-text" id="toastText">Adicionado ao carrinho</div>
+    </div>
+
+  </main>
+
+  <script>
+    // ---------------------
+    // Slide SPA navigation
+    // ---------------------
+    const track = document.getElementById("track");
+    const tabs = document.querySelectorAll(".tab");
+    let currentPage = 0;
+
+    function setActiveTab(index){
+      tabs.forEach(t => t.classList.remove("active"));
+      const tab = [...tabs].find(t => Number(t.dataset.page) === index);
+
+      // ✅ se a aba não existe (checkout/success), não marca nada
+      if(tab) tab.classList.add("active");
+    }
+
+    window.goToPage = function(index){
+      currentPage = index;
+      track.style.transform = `translateX(${-index * 100}%)`;
+      setActiveTab(index);
+
+      if(index === 3) renderCart();
+      if(index === 4) generatePixDemo();
+    };
+
+    tabs.forEach(tab => {
+      tab.addEventListener("click", () => {
+        goToPage(Number(tab.dataset.page));
+      });
+    });
+
+    // Menu arrows scroll
+    const navTabs = document.getElementById("tabs");
+    document.getElementById("leftArrow").addEventListener("click", () => {
+      navTabs.scrollBy({ left: -240, behavior: "smooth" });
+    });
+    document.getElementById("rightArrow").addEventListener("click", () => {
+      navTabs.scrollBy({ left: 240, behavior: "smooth" });
+    });
+
+    // Botão carrinho
+    document.getElementById("goCart").addEventListener("click", () => goToPage(3));
+
+    // ---------------------
+    // Motion produto home
+    // ---------------------
+    const tilt = document.getElementById("tilt");
+    window.addEventListener("mousemove", (e) => {
+      if(!tilt) return;
+      const x = (e.clientX / window.innerWidth - 0.5) * 12;
+      const y = (e.clientY / window.innerHeight - 0.5) * 12;
+      tilt.style.transform = `translateY(5px) rotateY(${x}deg) rotateX(${-y}deg)`;
+    });
+    window.addEventListener("mouseleave", () => {
+      if(!tilt) return;
+      tilt.style.transform = "translateY(5px) rotateY(0deg) rotateX(0deg)";
+    });
+
+    // ---------------------
+    // Toast minimalista
+    // ---------------------
+    let toastTimer = null;
+
+    function showToast(msg){
+      const toast = document.getElementById("toast");
+      const toastText = document.getElementById("toastText");
+      if(!toast || !toastText) return;
+
+      toastText.textContent = msg;
+      toast.classList.add("show");
+
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.remove("show");
+      }, 1800);
+    }
+
+    // ---------------------
+    // Carrinho fake
+    // ---------------------
+    function getCart() {
+      return JSON.parse(localStorage.getItem("cart_demo") || "[]");
+    }
+    function setCart(items) {
+      localStorage.setItem("cart_demo", JSON.stringify(items));
+    }
+    function updateCartBadge() {
+      const badge = document.getElementById("cartCount");
+      const cart = getCart();
+      badge.textContent = `CART: ${cart.length}`;
+    }
+
+    window.addToCart = function (name, price) {
+      const cart = getCart();
+      cart.push({ name, price });
+      setCart(cart);
+      updateCartBadge();
+      showToast(`✓ ${name} adicionado ao carrinho`);
+    };
+
+    window.clearCart = function () {
+      setCart([]);
+      updateCartBadge();
+      showToast("Carrinho limpo");
+    };
+
+    function renderCart(){
+      const box = document.getElementById("cartList");
+      const cart = getCart();
+
+      if(cart.length === 0){
+        box.innerHTML = `<p>Seu carrinho está vazio.</p>`;
+        return;
+      }
+
+      let total = 0;
+      const itemsHtml = cart.map((item) => {
+        total += item.price;
+        return `<p>• ${item.name} — <b>R$ ${item.price.toFixed(2)}</b></p>`;
+      }).join("");
+
+      box.innerHTML = `
+        <p><b>Itens:</b></p>
+        ${itemsHtml}
+        <div class="divider"></div>
+        <p><b>Total:</b> R$ ${total.toFixed(2)}</p>
+      `;
+    }
+
+    updateCartBadge();
+
+    // ---------------------
+    // Checkout PIX DEMO
+    // ---------------------
+    function randomPixDemoCode() {
+      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+      let out = "00020126BR.GOV.BCB.PIX-DEMO-";
+      for (let i = 0; i < 32; i++) out += chars[Math.floor(Math.random() * chars.length)];
+      out += "5204000053039865802BR5920CHERRY ICE CREAM6009SAO PAULO62070503***6304";
+      return out;
+    }
+
+    function generatePixDemo(){
+      const pixBox = document.getElementById("pixCode");
+      if(pixBox) pixBox.textContent = randomPixDemoCode();
+    }
+
+    window.startCheckout = function(){
+      const cart = getCart();
+      if(cart.length === 0){
+        showToast("Adicione um item antes de pagar");
+        goToPage(1);
+        return;
+      }
+      goToPage(4);
+    };
+
+    window.copyPix = async function(){
+      const pix = document.getElementById("pixCode")?.textContent || "";
+      if(!pix) return;
+
+      try{
+        await navigator.clipboard.writeText(pix);
+        showToast("PIX copiado (DEMO)");
+      }catch{
+        showToast("Copie manualmente o código PIX");
+      }
+    };
+
+    window.finishPaymentDemo = function(){
+      showToast("Pagamento confirmado (simulação)");
+      goToPage(5);
+    };
+  </script>
+</body>
+</html>
